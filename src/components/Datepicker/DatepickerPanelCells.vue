@@ -12,6 +12,12 @@
         v-bind:key="weekIndex + '_' + weekdayIndex"
       >
         <div
+          @mouseover="
+            showTooltip =
+              cellInfoList[weekIndex * this.daysInWeek + weekdayIndex].events
+                .text.length > 0
+          "
+          @mouseleave="showTooltip = false"
           @click="
             selectDate(
               cellInfoList[weekIndex * this.daysInWeek + weekdayIndex].date
@@ -38,6 +44,11 @@
                 cellInfoList[weekIndex * this.daysInWeek + weekdayIndex]
                   .isSelected,
             },
+            {
+              withEvents:
+                cellInfoList[weekIndex * this.daysInWeek + weekdayIndex].events
+                  .isNonWorking,
+            },
           ]"
         >
           {{
@@ -45,6 +56,13 @@
               weekIndex * this.daysInWeek + weekdayIndex
             ].date.getDate()
           }}
+          <span v-show="showTooltip">
+            {{
+              cellInfoList[
+                weekIndex * this.daysInWeek + weekdayIndex
+              ].events.text.join("\n")
+            }}</span
+          >
         </div>
       </td>
     </tr>
@@ -76,6 +94,7 @@ export default {
       weeksToDisplay: WeeksToDisplay,
       daysTodisplay: DaysTodisplay,
       cellDisplayMode: CellDisplayMode,
+      showTooltip: false,
       view: null, // TODO: days/months/years
     };
   },
@@ -98,8 +117,8 @@ export default {
         const cellDate = this.addDays(firstDisplayedDay, i);
         const targetMonth = this.isSameMonth(firstMonthDay, cellDate);
         const isWeekend = this.isWeekend(cellDate);
-        const event = { message: "", isNonWorking: false }; // TODO: should be a list of events. Use global dictionary (from storage) to load all events
-        const nonWorkingDay = isWeekend || event.isNonWorking;
+        const events = this.getEvents(cellDate);
+        const nonWorkingDay = isWeekend || events.isNonWorking;
         const cellViewState =
           targetMonth && nonWorkingDay
             ? CellDisplayMode.ActiveNonWorkingDay
@@ -112,7 +131,7 @@ export default {
           date: cellDate,
           viewState: cellViewState,
           isSelected: selectedTime == cellDate.getTime(),
-          // events: [event],
+          events: events,
         });
       }
 
@@ -136,10 +155,30 @@ export default {
       this.$emit("updateSelectedDate", newSelectedDate);
     },
     updateCells(date) {
-      // console.log("updateCells(date)" + date);
-      // console.log(this.cellInfoList);
       this.cellInfoList = this.fillMonth(date);
-      // console.log(this.cellInfoList);
+    },
+    getEvents(date) {
+      let events = JSON.parse(localStorage.annualEvents)?.filter(
+        (ev) =>
+          ev.month == date.getMonth() + 1 &&
+          ev.day == date.getDate() &&
+          (!ev.year || ev.year < date.getFullYear())
+      );
+      events = events.concat(
+        JSON.parse(localStorage.oneTimeEvents)?.filter(
+          (ev) =>
+            ev.month == date.getMonth() + 1 &&
+            ev.day == date.getDate() &&
+            ev.year == date.getFullYear()
+        )
+      );
+
+      const res = {
+        text: events.filter((ev) => ev.text).map((ev) => ev.text),
+        isNonWorking: !!events.find((ev) => ev.isRed == true),
+      };
+
+      return res;
     },
   },
 };
@@ -157,7 +196,21 @@ export default {
 }
 .clickable {
   cursor: pointer;
-  text-decoration: underline;
+}
+.cellTooltip {
+  width: 120px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -60px;
+  opacity: 0;
+  transition: opacity 0.3s;
 }
 .workingDay {
   color: #42b983;
@@ -173,5 +226,8 @@ export default {
 }
 .selected {
   background-color: #b4f3d7;
+}
+.withEvents {
+  text-decoration: underline;
 }
 </style>
