@@ -18,6 +18,7 @@
 import moment from "moment";
 import DatepickerPanel from "@/components/Datepicker/DatepickerPanel.vue";
 
+export const DateFormat = "DD.MM.YYYY";
 export default {
   name: "DatePicker",
   components: {
@@ -27,16 +28,21 @@ export default {
     const date = new Date(new Date().setHours(0, 0, 0, 0));
     return {
       selectedDate: date,
-      formattedDate: moment(date.toLocaleDateString()).format("DD.MM.YYYY"),
+      formattedDate: moment(date.toLocaleDateString()).format(DateFormat),
       view: null, // TODO: days/months/years
       showPanel: false,
     };
   },
   methods: {
-    updateDate() {
-      this.showPanel = false; // TODO: << if date is valid then Update current date in datepicker
-      // console.log("date is changed");
-      //this.$emit("selectedDateChenged");
+    updateDate(event) {
+      const newDate = moment(event.target.value, "DD.MM.YYYY");
+      if (newDate.format("DD.MM.YYYY") === event.target.value) {
+        this.selectedDate = newDate.toDate();
+        this.showPanel = true;
+      } else {
+        this.selectedDate = new Date(new Date().setHours(0, 0, 0, 0));
+        this.showPanel = false;
+      }
     },
     showOrClosePanel() {
       this.showPanel = !this.showPanel;
