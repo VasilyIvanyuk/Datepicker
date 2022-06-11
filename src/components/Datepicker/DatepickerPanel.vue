@@ -1,6 +1,13 @@
 <template>
-  <DatepickerPanelHeader v-bind:selectedDate="selectedDate" />
-  <DatepickerPanelCells v-bind:selectedDate="selectedDate" />
+  <DatepickerPanelHeader
+    v-bind:selectedDate="currentSelectedDate"
+    v-on:updateSelectedMonth="updateSelectedMonth"
+  />
+  <DatepickerPanelCells
+    v-bind:selectedDate="currentSelectedDate"
+    v-on:updateSelectedDate="updateSelectedDate"
+    ref="datepickerCells"
+  />
 </template>
 
 <script>
@@ -14,16 +21,18 @@ export default {
   },
   data() {
     return {
+      currentSelectedDate: this.selectedDate,
       selectedMonth: this.selectedDate,
       view: null, // TODO: days/months/years
-      showPanel: false,
     };
   },
+  emits: ["updateSelectedDate"],
   methods: {
-    updateDate() {
-      this.showPanel = false; // TODO: << if date is valid then Update current date in datepicker
-      console.log("date is changed");
-      //this.$emit("selectedDateChenged");
+    updateSelectedDate(newSelectedDate) {
+      this.$emit("updateSelectedDate", newSelectedDate);
+    },
+    updateSelectedMonth(newDate) {
+      this.$refs.datepickerCells.updateCells(newDate);
     },
   },
   components: {

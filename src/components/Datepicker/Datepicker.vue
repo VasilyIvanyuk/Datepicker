@@ -6,7 +6,11 @@
       v-on:dblclick="showOrClosePanel"
       v-on:input="updateDate"
     />
-    <DatepickerPanel v-if="showPanel" v-bind:selectedDate="selectedDate" />
+    <DatepickerPanel
+      v-if="showPanel"
+      v-bind:selectedDate="selectedDate"
+      v-on:updateSelectedDate="updateSelectedDate"
+    />
   </div>
 </template>
 
@@ -15,11 +19,7 @@ import moment from "moment";
 import DatepickerPanel from "@/components/Datepicker/DatepickerPanel.vue";
 
 export default {
-  name: "CalendarItem",
-  //   props: {
-  //   showPanel?: (String),
-  //   firstString: String,
-  // },
+  name: "DatePicker",
   components: {
     DatepickerPanel,
   },
@@ -35,11 +35,18 @@ export default {
   methods: {
     updateDate() {
       this.showPanel = false; // TODO: << if date is valid then Update current date in datepicker
-      console.log("date is changed");
+      // console.log("date is changed");
       //this.$emit("selectedDateChenged");
     },
     showOrClosePanel() {
       this.showPanel = !this.showPanel;
+    },
+    updateSelectedDate(newSelectedDate) {
+      this.showPanel = false;
+      this.selectedDate = newSelectedDate;
+      this.formattedDate = moment(newSelectedDate.toLocaleDateString()).format(
+        "DD.MM.YYYY"
+      );
     },
   },
 };

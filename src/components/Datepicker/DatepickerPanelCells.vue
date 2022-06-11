@@ -11,17 +11,47 @@
         v-for="(e, weekdayIndex) in this.daysInWeek"
         v-bind:key="weekIndex + '_' + weekdayIndex"
       >
-        <DatepickerPanelCell
-          :cell-info="cellInfoList[weekIndex * this.daysInWeek + weekdayIndex]"
-        />
+        <div
+          @click="
+            selectDate(
+              cellInfoList[weekIndex * this.daysInWeek + weekdayIndex].date
+            )
+          "
+          v-bind:class="[
+            'clickable',
+            {
+              workingDay:
+                cellInfoList[weekIndex * this.daysInWeek + weekdayIndex]
+                  .viewState == 0,
+              inactiveWorkingDay:
+                cellInfoList[weekIndex * this.daysInWeek + weekdayIndex]
+                  .viewState == 1,
+              nonWorkingDay:
+                cellInfoList[weekIndex * this.daysInWeek + weekdayIndex]
+                  .viewState == 2,
+              inactiveNonWorkingDay:
+                cellInfoList[weekIndex * this.daysInWeek + weekdayIndex]
+                  .viewState == 3,
+            },
+            {
+              selected:
+                cellInfoList[weekIndex * this.daysInWeek + weekdayIndex]
+                  .isSelected,
+            },
+          ]"
+        >
+          {{
+            cellInfoList[
+              weekIndex * this.daysInWeek + weekdayIndex
+            ].date.getDate()
+          }}
+        </div>
       </td>
     </tr>
   </table>
 </template>
 
 <script>
-import DatepickerPanelCell from "@/components/Datepicker/DatepickerPanelCell.vue";
-
 export const DaysInWeek = 7;
 export const WeeksToDisplay = 6;
 export const DaysTodisplay = DaysInWeek * WeeksToDisplay;
@@ -41,7 +71,7 @@ export default {
     return {
       initialDate: this.selectedDate,
       weekDayNames: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
-      cellInfoList: this.fillMonth(),
+      cellInfoList: this.fillMonth(this.selectedDate),
       daysInWeek: DaysInWeek,
       weeksToDisplay: WeeksToDisplay,
       daysTodisplay: DaysTodisplay,
@@ -49,29 +79,27 @@ export default {
       view: null, // TODO: days/months/years
     };
   },
-  methods: {
-    test() {
-      return this.$props.selectedDate;
+  computed: {
+    fetchCellsInfo() {
+      return this.fillMonth(this.selectedDate);
     },
-    fillMonth() {
-      const firstMonthDay = new Date(
-        this.$props.selectedDate.getFullYear(),
-        this.$props.selectedDate.getMonth(),
-        1
-      );
-      const firstDisplayedDay = new Date(new Date().setHours(0, 0, 0, 0));
+  },
+  methods: {
+    fillMonth(date) {
+      const firstMonthDay = new Date(date.getFullYear(), date.getMonth(), 1);
+      const firstDisplayedDay = new Date(firstMonthDay);
       firstDisplayedDay.setDate(
         firstMonthDay.getDate() - firstMonthDay.getDay()
       );
       const numberOfDislayedDays = 42;
-      const selectedTime = this.$props.selectedDate.getTime();
+      const selectedTime = date.getTime();
       const dateList = [];
       for (let i = 0; i < numberOfDislayedDays; i++) {
         const cellDate = this.addDays(firstDisplayedDay, i);
         const targetMonth = this.isSameMonth(firstMonthDay, cellDate);
         const isWeekend = this.isWeekend(cellDate);
-        const event = { message: "", isHoliday: false }; // TODO: should be a list of events. Use global dictionary (from storage) to load all events
-        const nonWorkingDay = isWeekend || event.isHoliday;
+        const event = { message: "", isNonWorking: false }; // TODO: should be a list of events. Use global dictionary (from storage) to load all events
+        const nonWorkingDay = isWeekend || event.isNonWorking;
         const cellViewState =
           targetMonth && nonWorkingDay
             ? CellDisplayMode.ActiveNonWorkingDay
@@ -83,7 +111,7 @@ export default {
         dateList.push({
           date: cellDate,
           viewState: cellViewState,
-          isToday: selectedTime == cellDate.getTime(),
+          isSelected: selectedTime == cellDate.getTime(),
           // events: [event],
         });
       }
@@ -104,9 +132,15 @@ export default {
     isWeekend(date) {
       return date.getDay() === 6 || date.getDay() === 0;
     },
-  },
-  components: {
-    DatepickerPanelCell,
+    selectDate(newSelectedDate) {
+      this.$emit("updateSelectedDate", newSelectedDate);
+    },
+    updateCells(date) {
+      // console.log("updateCells(date)" + date);
+      // console.log(this.cellInfoList);
+      this.cellInfoList = this.fillMonth(date);
+      // console.log(this.cellInfoList);
+    },
   },
 };
 </script>
@@ -120,5 +154,24 @@ export default {
   display: block;
   margin-left: auto;
   margin-right: auto;
+}
+.clickable {
+  cursor: pointer;
+  text-decoration: underline;
+}
+.workingDay {
+  color: #42b983;
+}
+.inactiveWorkingDay {
+  color: #cfe7dc;
+}
+.nonWorkingDay {
+  color: #f7656c;
+}
+.inactiveNonWorkingDay {
+  color: #f3cbcd;
+}
+.selected {
+  background-color: #b4f3d7;
 }
 </style>
