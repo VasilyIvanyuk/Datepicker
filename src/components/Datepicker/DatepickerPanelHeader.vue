@@ -31,6 +31,7 @@ export default {
     setNewMonth(month) {
       this.selectedDate.setMonth(month);
       this.selectedMonth = moment(this.selectedDate).format("MMM YYYY");
+      this.$emit("updateSelectedMonth", this.selectedDate);
     },
   },
 };
