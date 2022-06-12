@@ -12,12 +12,11 @@
         v-bind:key="weekIndex + '_' + weekdayIndex"
       >
         <div
-          @mouseover="
-            showTooltip =
-              cellInfoList[weekIndex * this.daysInWeek + weekdayIndex].events
-                .text.length > 0
+          :title="
+            cellInfoList[
+              weekIndex * this.daysInWeek + weekdayIndex
+            ].events.text.join('\n')
           "
-          @mouseleave="showTooltip = false"
           @click="
             selectDate(
               cellInfoList[weekIndex * this.daysInWeek + weekdayIndex].date
@@ -56,13 +55,6 @@
               weekIndex * this.daysInWeek + weekdayIndex
             ].date.getDate()
           }}
-          <span v-show="showTooltip">
-            {{
-              cellInfoList[
-                weekIndex * this.daysInWeek + weekdayIndex
-              ].events.text.join("\n")
-            }}</span
-          >
         </div>
       </td>
     </tr>
@@ -196,21 +188,6 @@ export default {
 }
 .clickable {
   cursor: pointer;
-}
-.cellTooltip {
-  width: 120px;
-  background-color: #555;
-  color: #fff;
-  text-align: center;
-  border-radius: 6px;
-  padding: 5px 0;
-  position: absolute;
-  z-index: 1;
-  bottom: 125%;
-  left: 50%;
-  margin-left: -60px;
-  opacity: 0;
-  transition: opacity 0.3s;
 }
 .workingDay {
   color: #42b983;
