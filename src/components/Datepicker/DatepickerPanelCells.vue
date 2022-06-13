@@ -46,7 +46,7 @@
             {
               withEvents:
                 cellInfoList[weekIndex * this.daysInWeek + weekdayIndex].events
-                  .isNonWorking,
+                  .text.length,
             },
           ]"
         >
