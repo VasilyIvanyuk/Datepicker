@@ -1,24 +1,10 @@
-# calendar
+# dateoicjer
 
-## Project setup
+## Для запуска приложения, в директории проекта выполните следующие комады:
 ```
 npm install
-```
-
-### Compiles and hot-reloads for development
-```
 npm run serve
 ```
 
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+### На экране появится адрес по которму можно обратиться к приложению. Например: http://localhost:8080/
+### Затем откройте веб-браузер и перейдите по указанному адресу.
