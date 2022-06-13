@@ -41,7 +41,7 @@ export default {
               text: "Russia Day",
             },
             {
-              day: 6,
+              day: 26,
               month: 5,
               year: 1799,
               isRed: false,
@@ -56,7 +56,7 @@ export default {
             },
             {
               day: 6,
-              month: 5,
+              month: 6,
               year: 1799,
               isRed: false,
               text: "День рождения А.С.Пушкина",
